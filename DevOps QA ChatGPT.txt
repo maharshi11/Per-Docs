@@ -1,0 +1,463 @@
+node()
+{
+
+
+withEnv([
+
+    'URL1=https://github.com/opus-consulting-solutions/${GIT_PROJECT}',
+	'CREDS=Optimus_github',
+	'AZURE_ACR=optimusacr01.azurecr.io'
+	
+    ]){
+
+
+	stage('Logging into Azure ACR') {
+                 sh "az acr login --name OptimusACR01"
+
+      }
+      
+
+stage('GIT'){
+    sh "rm -rf *"
+    git branch: BRANCH, credentialsId: CREDS, url: URL1
+    
+    // sh 'git checkout tags/v2.16.0-qa'
+    
+    sh'''
+    
+    
+    
+    cp -f ${DOCUMENT_ROOT}/${GIT_PROJECT}/Dockerfile .
+    
+    '''
+    
+    print "Git Access working as expected"
+    
+}
+
+
+
+stage('Build') {
+    echo 'Building..'
+    sh '''
+    chmod 755 gradlew
+    ./gradlew -x test clean build
+    '''
+} 
+
+ stage('Building Docker images') {
+
+          sh '''echo "${GIT_PROJECT}:${IMAGE_TAG}"'''
+          dockerImage = docker.build "${GIT_PROJECT}:${IMAGE_TAG}"
+    }
+
+stage('Pushing to Docker Image ECR') {  
+		
+	sh "docker tag ${GIT_PROJECT}:${IMAGE_TAG} ${AZURE_ACR}/${GIT_PROJECT}:${IMAGE_TAG}"
+	
+	sh "docker push ${AZURE_ACR}/${GIT_PROJECT}:${IMAGE_TAG}"
+	}
+	
+
+
+stage('cleanup DockerImage') {
+    
+    sh '''for i in `docker images | grep "${GIT_PROJECT}" | awk '{print $3}'`; do echo $i; docker rmi -f $i; done'''
+}
+
+
+
+}
+  }	
+
+vi /etc/fstab
+s3fs#s3buckmumbai /s3fstest     fuse    _netdev,allow_other 0 0
+
+apt-get update -y
+apt-get install s3fs awscli -y
+cd /
+mkdir /s3fstest
+touch /etc/passwd-s3fs
+chmod 600 /etc/passwd-s3fs
+vi /etc/passwd-s3fs
+vi /etc/fuse.conf
+add below entry
+user_allow_other
+vi /etc/fstab
+add below entry
+s3fs#s3buckmumbai /s3fstest     fuse    _netdev,allow_other 0 0
+cat /etc/fstab
+df -Th
+df -Th /s3fstest/
+mount -a
+df -Th /s3fstest/
+cd /s3fstest/
+ll
+cd /opt
+ll
+touch file{1..10}.txt
+ll
+cp file* /s3fstest/
+ll
+cd /s3fstest/
+
+s3fs s3buckmumbai -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /mys3bucket
+/usr/bin/s3fs
+/usr/bin/s3fs s3buckmumbai -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /mys3bucket
+
+yum update all
+yum install automake fuse fuse-devel gcc-c++ git libcurl-devel libxml2-devel make openssl-devel
+git clone https://github.com/s3fs-fuse/s3fs-fuse.git
+cd s3fs-fuse
+./autogen.sh
+./configure --prefix=/usr --with-openssl
+make
+make install
+which s3fs
+touch /etc/passwd-s3fs
+vim /etc/passwd-s3fs
+chmod 640 /etc/passwd-s3fs
+mkdir /mys3bucket
+s3fs s3buckmumbai -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /mys3bucket
+which s3fs
+vi /etc/rc.local
+# Add below entry
+/usr/bin/s3fs s3buckmumbai -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /mys3bucket
+df -Th /mys3bucket
+cd /mys3bucket
+touch myfilestodays{1..10}.txt
+January@2023
+
+IAM-user
+Policy:
+AmazonEC2ContainerRegistryFullAccess
+AmazonElasticContainerRegistryPublicFullAccess
+
+install awscli
+aws configure
+
+install docker
+need images Dockerfile
+
+
+
+SESHU GANESH LOSETTI
+echo "<h1>web server -1 </h1>" > /usr/share/nginx/html/index.html
+
+Load Balancers: 
+Application LB (ALB): it will handle lesser than NLB, it will support http https, traffic will distribute equally
+
+NLB: if incase we have 1000 request per server, if we receive morethan 1000 request Server might have crash, in this cases NLB will help,
+NLB will split request into different servers, it handles millions of request per second. it will support TCP UDP TLS
+GLB:
+
+CLB
+--------------------------------------
+Declarative Pipeline:
+* limited control flow structure, which means that its flow is pre-determined and limited to a set of predefined steps.
+* start With pipeline syntax
+Scripted Pipeline:
+* start With node syntax, Code reusability, code/error debugging is easier in declarative pipeline compare to scripted pipeline.
+
+
+--------------------------------------------------------------------
+AWS Architecture:
+
+ The architecture of AWS is designed to be highly scalable, flexible, and secure, with a focus on providing customers with the ability to build and run a wide range of applications and services. The core components of the AWS architecture include:
+
+Region and Availability Zone: A geographic area that contains multiple data centers.
+
+EC2 (Elastic Compute Cloud): A scalable computing service that allows users to launch virtual machines.
+
+S3 (Simple Storage Service): A scalable, high-speed, web-based storage service.
+
+RDS (Relational Database Service): A managed relational database service that makes it easy to set up, operate, and scale databases.
+
+VPC (Virtual Private Cloud): A virtual network dedicated to the user's AWS account.
+
+Route 53: A highly available and scalable cloud Domain Name System (DNS) web service.
+
+These are some of the key components of the AWS architecture, and there are many other services available to support a wide range of application and infrastructure needs.
+---------------------------------------------------------------------------------------------
+AWS VPC:
+
+Amazon Virtual Private Cloud (Amazon VPC) enables you to launch Amazon Web Services (AWS) resources into a virtual network that you've defined. This virtual network closely resembles a traditional network that you'd operate in your own data center, with the benefits of using the scalable infrastructure of AWS.
+
+	
+A VPC allows you to:
+ 
+Configure route tables, network gateways, and security settings
+Launch instances in one or more subnets
+Control the visibility of instances from the Internet
+By launching your resources, such as Amazon Elastic Compute Cloud (EC2) instances, into a VPC, you gain the ability to use Amazon VPC security groups and network ACLs to control inbound and outbound traffic. This provides more secure and scalable deployment options than deploying instances into EC2-Classic.
+-----------------------------------------------------------------------------------------------------
+Kubernetes Architecture:
+
+Kubernetes is an open-source platform for automating deployment, scaling, and management of containerized applications. The Kubernetes architecture consists of a set of components that work together to provide a platform for deploying, scaling, and operating application containers:
+
+API Server: The API Server is the core component that exposes the Kubernetes API and provides a centralized configuration store for all other components.
+
+etcd: etcd is a distributed key-value store that acts as a data store for the cluster. It is used to store configuration data and cluster state.
+
+Controller Manager: The Controller Manager is responsible for monitoring the state of the cluster and making necessary adjustments to ensure that the desired state is achieved.
+
+Scheduler: The Scheduler is responsible for scheduling containers to run on available nodes in the cluster.
+
+Kubelet: The Kubelet is a small agent that runs on each node in the cluster and is responsible for ensuring that containers are running and healthy.
+
+Container Runtime: The Container Runtime is responsible for running containers on nodes and is typically Docker, but can also be run, Containerd, or CRI-O.
+
+kubectl: kubectl is the command-line tool used to interact with a Kubernetes cluster.
+
+These components work together to provide a platform for deploying, scaling, and operating containers.
+-------------------------------------------------------------------------------------------------------
+Git Architecture:
+
+Git is a distributed version control system. In Git, every repository is a complete backup of all the data, including the entire history of all changes. Each local repository contains a full copy of the project, including all versions of all files. The repository contains the entire history of the project, making it possible to go back to a previous version at any time. When changes are made to the code and committed, they are stored in the local repository. Git then provides tools to share and merge changes between different local repositories. The Git architecture provides robustness, efficiency, and decentralization, making it ideal for distributed software development.
+----------
+Git rebase:
+Git rebase is a Git command that allows you to reapply a series of commits to a different base branch. It can be used to clean up a messy commit history, to integrate changes from one branch into another, or to move a series of commits to a new base.
+
+Rebasing works by taking a set of commits, usually from a feature branch, and reapplying them on top of a different branch. This can result in a linear history, where all the changes related to a feature are grouped together.
+
+It is important to note that rebasing changes the commit history and can lead to conflicts if the base branch has been modified since the original branch was created. It is recommended to use rebasing only in local branches and not in shared branches, as it can confuse other team members and cause problems when merging.
+--------------
+GIT revert:
+Git revert is a command that allows you to undo changes in a specific commit. It creates a new commit that undoes the changes made in a previous commit, effectively rolling back the repository to a previous state. The original commit remains in the history of the repository, but its changes are no longer present in the latest version of the code.
+
+The git revert command is useful when you want to undo changes in a specific commit without affecting the rest of the history. It is a safer option than using git reset, which permanently discards commits and their changes.
+
+To revert a specific commit, you need to specify the commit hash or reference to the commit in question. Git will then create a new commit that undoes the changes made in the specified commit, leaving the rest of the history intact.
+--------------
+Docker architecture:
+
+Docker is a platform that allows developers to easily create, deploy, and run applications in containers. Containers are isolated environments that contain everything an application needs to run, including the code, libraries, system tools, and runtime.
+
+The Docker architecture consists of several components:
+
+Docker Daemon: The Docker daemon is the core component of the Docker platform. It runs on a host machine and manages the creation and lifecycle of containers.
+
+Docker Client: The Docker client is the command-line tool used to interact with the Docker daemon. It allows you to issue commands to the daemon and manage containers.
+
+Docker Image: A Docker image is a pre-built, ready-to-run environment for an application. It includes the code, libraries, tools, and runtime required to run the application.
+
+Docker Registry: A Docker registry is a centralized repository for storing and distributing Docker images. The Docker Hub is the most popular public registry, but private registries can also be used to store and distribute images within an organization.
+
+Docker Container: A Docker container is a standalone executable package that includes everything required to run a piece of software, including the code, a runtime, libraries, environment variables, and config files.
+
+Overall, the Docker architecture provides a simple, efficient, and scalable way to package and distribute applications. The use of containers makes it easy to run the same application on any host, ensuring consistency and reducing the overhead of managing dependencies and configuration.
+------------------------
+Docker File:
+
+A Dockerfile is a script that contains instructions for building a Docker image. It defines the environment and components required to run a specific application, including the base image, dependencies, files, and config files.
+
+Each line in a Dockerfile corresponds to a command that is executed during the build process. The Dockerfile starts with a base image, which provides a foundation for the rest of the build. Then, various commands are used to add files, install dependencies, and configure the environment.
+
+A Dockerfile typically includes the following instructions:
+
+FROM: Specifies the base image to use as a starting point.
+
+RUN: Executes shell commands to install dependencies and configure the environment.
+
+COPY: Copies files from the host machine into the image.
+
+WORKDIR: Specifies the working directory for the subsequent instructions.
+
+ENV: Sets environment variables for the image.
+
+EXPOSE: Specifies the ports that the application listens on.
+
+CMD: Specifies the command to run when a container is started from the image.
+
+The Dockerfile is used to build a Docker image, which can then be used to start containers. By using a Dockerfile, you can automate the build process and ensure that the image is consistently built every time. This makes it easier to deploy and run applications in containers.
+-------------------------
+Diff between COPY and ADD in docker file
+
+COPY and ADD are both instructions in a Dockerfile used to copy files from the host machine into a Docker image. However, there are some differences between the two:
+
+COPY: The COPY instruction is used to copy files from the host machine into the Docker image file system. It only supports local files and does not support remote URLs or archive extraction. It is a simple and straightforward instruction for copying files.
+
+ADD: The ADD instruction is more powerful than COPY and supports both local files and remote URLs. It also supports archive extraction, which means it can automatically unpack .tar and .zip files. However, the use of remote URLs and archive extraction can make the build process more complex and harder to understand.
+
+In general, it is recommended to use COPY when copying files from the host machine into the Docker image, as it is simpler and less prone to errors. Use ADD only when you need the additional functionality provided, such as archive extraction or downloading files from a remote URL.
+--------------------------
+difference between jenkins pipeline script to declarative script:
+
+Jenkins Pipeline Script and Declarative Script are two ways to write Jenkins pipelines, but they have some important differences:
+
+Syntax: Declarative Script has a more concise and easier to read syntax compared to Scripted Pipeline, which uses Groovy language.
+
+Control Flow: Declarative Script has a limited control flow structure, which means that its flow is pre-determined and limited to a set of predefined steps. On the other hand, Scripted Pipeline has full control over the flow and provides more flexibility in terms of what can be accomplished in a pipeline.
+
+Code Reusability: Scripted Pipeline provides more opportunities for code reuse compared to Declarative Script, which focuses on simplicity and readability over code reuse.
+
+Debugging: Debugging a Declarative Script can be easier compared to Scripted Pipeline, as the former has a more structured syntax.
+
+In conclusion, both Jenkins Pipeline Script and Declarative Script have their own advantages and disadvantages and the choice between them would depend on the specific requirements of a pipeline and the preference of the person writing the pipeline.
+-----------------
+What is DevOps
+
+DevOps is a software engineering culture and practice that aims to unify development (Dev) and operations (Ops) teams to improve collaboration and efficiency in the software development lifecycle.
+
+The main principles of DevOps include:
+
+Automation: Automating repetitive tasks, such as testing, deployment, and infrastructure management, to reduce manual errors and improve efficiency.
+
+Continuous Integration and Continuous Deployment (CI/CD): Automatically building, testing, and deploying code changes to production environments to enable faster and more reliable releases.
+
+Collaboration: Breaking down silos between development and operations teams to improve communication and collaboration, and aligning goals towards a common objective.
+
+Monitoring and Feedback: Monitoring production environments and systems to quickly detect and resolve issues, and using feedback to continuously improve processes and systems.
+
+DevOps practices and tools, such as containerization (Docker), configuration management (Ansible), and continuous integration and delivery tools (Jenkins), have helped organizations to deliver high-quality software faster and more reliably.
+
+In conclusion, DevOps is a cultural and technical movement that enables organizations to deliver software faster and with higher quality by improving collaboration and automation in the software development lifecycle.
+------------------------
+Kubernetes Yaml file explanation
+
+Kubernetes YAML (Yet Another Markup Language) files are used to define and deploy Kubernetes objects, such as pods, services, and deployments. These YAML files are used to describe the desired state of the Kubernetes cluster, and the Kubernetes control plane will ensure that the actual state of the cluster matches the desired state.
+
+A Kubernetes YAML file typically consists of the following elements:
+
+apiVersion: This field specifies the version of the Kubernetes API that the YAML file is using.
+
+kind: This field specifies the type of Kubernetes object that the YAML file is defining, such as a Pod, Service, or Deployment.
+
+metadata: This section contains information about the Kubernetes object, such as its name, labels, and annotations.
+
+spec: This section contains the specifications of the Kubernetes object, such as its desired state and behavior. For example, the spec section of a pod YAML file might define the containers that should run in the pod and their settings.
+
+Here is an example of a simple Kubernetes YAML file that creates a pod with a single container running a "Hello, World!" script:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello-world
+spec:
+  containers:
+  - name: hello-world-container
+    image: alpine
+    command: ["echo", "Hello, World!"]
+
+In conclusion, Kubernetes YAML files are used to define and deploy Kubernetes objects, and they provide a simple and powerful way to describe the desired state of a Kubernetes cluster.
+--------
+
+Jenkins Scripted pipeline explanation:
+
+Jenkins Scripted Pipeline is a Jenkins pipeline type that allows you to write your pipeline code in Groovy script format. Unlike Declarative Pipelines, which provide a simpler and more opinionated syntax, Scripted Pipelines offer a more flexible and expressive way to build, test, and deploy your applications.
+
+A Jenkins Scripted Pipeline consists of the following elements:
+
+Node: A node block defines a Jenkins agent that will run the pipeline steps.
+
+Stage: A stage block defines a logical segment of the pipeline, such as "Build", "Test", or "Deploy".
+
+Steps: Steps are the individual tasks that are performed in a stage. Steps can run shell commands, call other scripts, or use Jenkins plugins to perform tasks such as building code, running tests, and deploying applications.
+
+Environment Variables: Environment variables can be defined and used within a pipeline to control the behavior of the pipeline and its steps.
+
+Here is an example of a simple Jenkins Scripted Pipeline that builds a Java project, runs tests, and deploys the application:
+
+node {
+    stage("Build") {
+        sh "mvn clean install"
+    }
+    stage("Test") {
+        sh "mvn test"
+    }
+    stage("Deploy") {
+        sh "mvn deploy"
+    }
+}
+
+
+In conclusion, Jenkins Scripted Pipelines provide a more flexible and expressive way to automate the build, test, and deployment of your applications. They allow you to write pipeline code in Groovy script format and to control the pipeline's behavior through environment variables, stages, and steps.
+
+--------------------------------------
+Day to Day:
+
+I used to perform deployment task in QA UAT and Prod env
+in qa We used to do Deployment weekly twice or thrice 
+we are using jenkins for CICD purpose,. In Jenkins we are using scripted pipeline, while doing deployment if anyting goes wrong we used to debug
+For cloud we are using AWS, in AWS i have created EKS cluster, created ECR repository, Mouted S3 path
+used to Monitor Garfana CPU and Memory utilization If any VM/server is above threshold/redzone we used to cleanup data or we increase the VM space after approval
+If ing VM backupany user account getting expiring we used extend for this we need approval (we have ticket system)
+If we need any exist we create AMI to get those.
+We perform patching activity every quaters.
+---------------------------------------
+Jenkins master-slave architecture
+
+Jenkins master-slave architecture involves setting up one or more slave nodes to perform build and deployment tasks delegated by the master node. The master node acts as a central management point that schedules and delegates jobs to the available slave nodes.
+
+The slave nodes are responsible for executing the build and deployment tasks assigned to them by the master node. The master node communicates with the slave nodes over the network, sending them the necessary build artifacts and build instructions. The slaves return the build results back to the master node, which can then display the build results and notify the users of the build status.
+
+This architecture enables Jenkins to distribute the build workload across multiple machines, improving the overall performance and scalability of the system. Additionally, the slave nodes can be dedicated build machines, allowing for specialized configurations and hardware setups to be used for specific build tasks.
+------------------------
+git cherry-pick is a Git command that allows you to apply changes from a specific commit in your Git repository to your current branch. This is useful when you want to apply changes from one branch to another, or if you want to incorporate changes from a specific commit into your current branch.
+
+Here's how you can use git cherry-pick:
+
+Checkout the branch you want to apply the changes to.
+Run the following command, replacing <commit-hash> with the hash of the commit you want to cherry-pick:
+python
+Copy code
+$ git cherry-pick <commit-hash>
+This will apply the changes from the specified commit to your current branch. If there are any conflicts, Git will inform you, and you will need to resolve them before you can continue.
+
+Note that git cherry-pick creates a new commit, so the history of your branch will show that the changes were applied as a result of a cherry-pick, rather than being part of the original commit.
+
+----------------------------------------------------------------
+Git Stash
+git stash is a Git command that allows you to temporarily save changes that have not been committed to a stash, so that you can switch to a different branch or work on something else, and then later reapply the saved changes.
+
+Here's how you can use git stash:
+
+Make sure you're in the branch where you want to stash your changes.
+Run the following command to stash your changes:
+ruby
+Copy code
+$ git stash
+This will save your changes to a stash and restore your branch to its previous state. You can now switch to a different branch or work on something else.
+
+To reapply the stashed changes, switch back to the original branch and run the following command:
+
+ruby
+Copy code
+$ git stash apply
+This will reapply the changes from the stash to your branch.
+
+You can also use the git stash list command to view a list of all stashes in your repository, and the git stash drop command to remove a stash.
+
+-----------------------
+VPC Peering Usses:
+----------
+VPC (Virtual Private Cloud) peering is a networking feature that allows you to connect two or more VPCs within the same AWS (Amazon Web Services) region, and enables the exchange of traffic between them privately and securely. Here are some of the common uses of VPC peering:
+
+Cross-Account Connectivity: VPC peering enables communication between VPCs that belong to different AWS accounts. This is particularly useful when you need to share resources or services between accounts, or when you want to create a multi-tier architecture with different VPCs for different purposes.
+
+Multi-Region Connectivity: VPC peering can be used to connect VPCs that are located in different AWS regions. This enables you to create a global network that spans across multiple regions and allows you to route traffic between them.
+
+Resource Sharing: VPC peering can be used to share resources such as databases, cache servers, and application servers between VPCs. This enables you to centralize your resources and make them accessible to multiple VPCs.
+
+Security: VPC peering enables private and secure communication between VPCs, as traffic between them is encrypted and doesn't traverse the public internet. This reduces the risk of data interception or eavesdropping.
+
+Cost Savings: VPC peering can help reduce your network costs by eliminating the need for expensive VPN connections or leased lines between VPCs.
+-----------------------------------------------------------------------
+kubernetes objects explanation 
+
+Kubernetes is a popular container orchestration system that automates the deployment, scaling, and management of containerized applications. It uses various objects to represent and manage the state of the system. Here are some of the common Kubernetes objects:
+
+Pods: A Pod is the smallest and simplest Kubernetes object, representing a single instance of a running process in a cluster. Pods can contain one or more containers, which share the same network namespace and storage volumes.
+
+Services: A Service is an abstract way to expose an application running on a set of Pods as a network service. Services provide a stable IP address and DNS name for Pods, and can load-balance traffic across multiple instances.
+
+Deployments: A Deployment is a higher-level object that manages a set of replicated Pods, ensuring that a specified number of replicas are running at all times. Deployments provide rolling updates and rollbacks, making it easy to update your application without downtime.
+
+ConfigMaps: A ConfigMap is a Kubernetes object that provides a way to store configuration data that can be used by other objects in the cluster. ConfigMaps can be used to store environment variables, command-line arguments, and other configuration parameters.
+
+Secrets: A Secret is similar to a ConfigMap, but it is used to store sensitive information such as passwords, API keys, and SSL certificates. Secrets are encrypted and can only be accessed by authorized users and services.
+
+Persistent Volumes: A Persistent Volume (PV) is a Kubernetes object that represents a piece of storage in the cluster that has been provisioned by an administrator. Persistent Volumes can be used by Pods to store data, and can be dynamically provisioned or statically allocated.
+
+StatefulSets: A StatefulSet is a Kubernetes object that manages a set of Pods with unique, persistent identities. StatefulSets are used for stateful applications that require stable network identities and persistent storage, such as databases.
+
+DaemonSets: A DaemonSet is a Kubernetes object that ensures that a copy of a Pod is running on each node in the cluster. DaemonSets are typically used for cluster-level services such as logging or monitoring.
